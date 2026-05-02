@@ -1,22 +1,22 @@
-[
-  {
-    "text": "\"I can do <span class=\"highlight\">all things</span> through Christ which strengtheneth me.\"",
-    "ref": "Philippians 4:13",
-    "themeKey": "philippians"
+{
+  "philippians": {
+    "gradient": "linear-gradient(135deg, #0f2027, #203a43, #2c5364)",
+    "particleColor": "rgba(255, 255, 255, 0.6)",
+    "accentColor": "#ffcc33"
   },
-  {
-    "text": "\"With God <span class=\"highlight\">all things</span> are possible.\"",
-    "ref": "Matthew 19:26",
-    "themeKey": "matthew"
+  "matthew": {
+    "gradient": "linear-gradient(135deg, #1e3c72, #2a5298, #ffb347)",
+    "particleColor": "rgba(255, 255, 255, 0.4)",
+    "accentColor": "#ffcc33"
   },
-  {
-    "text": "\"They compassed me about on every side: but in the <span class=\"highlight\">name of the Lord</span> I will destroy them.\"",
-    "ref": "Psalm 118:11",
-    "themeKey": "psalms"
+  "psalms": {
+    "gradient": "linear-gradient(135deg, #061700, #0d3b0d, #1a4d1a)",
+    "particleColor": "rgba(200, 255, 200, 0.5)",
+    "accentColor": "#ffcc33"
   },
-  {
-    "text": "\"May the God of hope fill you with all <span class=\"highlight\">joy and peace</span> in believing, so that you may abound in hope.\"",
-    "ref": "Romans 15:13",
-    "themeKey": "romans"
+  "romans": {
+    "gradient": "linear-gradient(135deg, #4b6cb7, #182848, #6a11cb, #2575fc)",
+    "particleColor": "rgba(255, 255, 255, 0.7)",
+    "accentColor": "#ffcc33"
   }
-]
+}
