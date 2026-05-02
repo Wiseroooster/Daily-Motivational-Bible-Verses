@@ -1,2 +1,183 @@
-<DOCTYPE>
-<html lang = en>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Path of Faith</title>
+    <style>
+        :root {
+            --gold: #ffcc33;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Georgia', serif;
+            background: #000;
+        }
+
+        #bg-canvas {
+            position: absolute; top: 0; left: 0; z-index: 1;
+            width: 100%; height: 100%;
+            transition: background 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #particle-overlay {
+            position: absolute; top: 0; left: 0; z-index: 2;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative; z-index: 10;
+            text-align: center; padding: 60px 50px;
+            max-width: 850px; width: 85%;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.6);
+            cursor: pointer;
+            transition: all 0.5s ease;
+            user-select: none;
+        }
+
+        .container:hover { transform: scale(1.02); background: rgba(255, 255, 255, 0.15); }
+
+        .verse-content { opacity: 0; transform: translateY(15px); transition: all 0.8s ease; }
+        .verse-content.active { opacity: 1; transform: translateY(0); }
+
+        h1 { color: var(--white); font-weight: 400; font-size: 2.2rem; line-height: 1.6; margin: 0; text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .highlight { color: var(--gold); font-style: italic; font-weight: bold; text-shadow: 0 0 25px rgba(255, 204, 51, 0.5); }
+        .reference { margin-top: 40px; color: var(--gold); letter-spacing: 7px; text-transform: uppercase; font-size: 0.95rem; font-family: 'Verdana', sans-serif; opacity: 0.9; }
+
+        #toast {
+            position: fixed; top: 30px;
+            background: var(--gold); color: #000;
+            padding: 10px 30px; border-radius: 50px;
+            font-family: sans-serif; font-weight: bold;
+            display: none; z-index: 100;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-canvas"></div>
+    <canvas id="particle-overlay"></canvas>
+    <div id="toast">Verse Copied & Atmosphere Changed</div>
+
+    <div class="container" id="bibleCard">
+        <div id="contentWrapper" class="verse-content active">
+            <h1 id="verseDisplay">Loading...</h1>
+            <div class="reference" id="refDisplay">Connecting to Truth</div>
+        </div>
+    </div>
+
+    <script>
+        let themes = {};
+        let verses = [];
+        let currentIndex = -1;
+
+        const card = document.getElementById('bibleCard');
+        const content = document.getElementById('contentWrapper');
+        const verseDisplay = document.getElementById('verseDisplay');
+        const refDisplay = document.getElementById('refDisplay');
+        const bgContainer = document.getElementById('bg-canvas');
+        const toast = document.getElementById('toast');
+
+        // --- Fetch Logic ---
+        async function loadData() {
+            try {
+                const [themesRes, versesRes] = await Promise.all([
+                    fetch('themes.json'),
+                    fetch('verses.json')
+                ]);
+                
+                themes = await themesRes.json();
+                verses = await versesRes.json();
+
+                // Set initial state
+                verseDisplay.innerText = "Tap to begin your journey";
+                refDisplay.innerText = "The Path of Faith";
+            } catch (error) {
+                verseDisplay.innerText = "Error loading data.";
+                console.error("Failed to fetch JSON:", error);
+            }
+        }
+
+        card.addEventListener('click', () => {
+            if (verses.length === 0) return;
+
+            content.classList.remove('active');
+            
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % verses.length;
+                const verse = verses[currentIndex];
+                const theme = themes[verse.themeKey];
+                
+                verseDisplay.innerHTML = verse.text;
+                refDisplay.innerText = verse.ref;
+                bgContainer.style.background = theme.gradient;
+                
+                content.classList.add('active');
+                
+                const plainText = verseDisplay.innerText + " - " + refDisplay.innerText;
+                navigator.clipboard.writeText(plainText);
+                
+                toast.style.display = 'block';
+                setTimeout(() => { toast.style.display = 'none'; }, 1500);
+            }, 400);
+        });
+
+        // --- Particle Engine ---
+        const canvas = document.getElementById('particle-overlay');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height + canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.alpha = Math.random() * 0.5;
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            update() {
+                this.y -= this.speed;
+                if (this.y < -10) this.reset();
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        for(let i=0; i<100; i++) particles.push(new Particle());
+        animate();
+
+        // Start the load
+        loadData();
+    </script>
+</body>
+</html>
