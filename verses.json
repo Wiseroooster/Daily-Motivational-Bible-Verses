@@ -2,21 +2,21 @@
   {
     "text": "\"I can do <span class=\"highlight\">all things</span> through Christ which strengtheneth me.\"",
     "ref": "Philippians 4:13",
-    "bg": "var(--bg-philippians)"
+    "themeKey": "philippians"
   },
   {
     "text": "\"With God <span class=\"highlight\">all things</span> are possible.\"",
     "ref": "Matthew 19:26",
-    "bg": "var(--bg-matthew)"
+    "themeKey": "matthew"
   },
   {
     "text": "\"They compassed me about on every side: but in the <span class=\"highlight\">name of the Lord</span> I will destroy them.\"",
     "ref": "Psalm 118:11",
-    "bg": "var(--bg-psalms)"
+    "themeKey": "psalms"
   },
   {
     "text": "\"May the God of hope fill you with all <span class=\"highlight\">joy and peace</span> in believing, so that you may abound in hope.\"",
     "ref": "Romans 15:13",
-    "bg": "var(--bg-romans)"
+    "themeKey": "romans"
   }
 ]
