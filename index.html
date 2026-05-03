@@ -1,83 +1,35 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Path of Faith - Explore</title>
-<style>
-:root {
---gold: #ffcc33;
---white: #ffffff;
---glass: rgba(255, 255, 255, 0.1);
-}
-
-    body, html {
-        margin: 0; padding: 0;
-        width: 100%; height: 100%;
-        overflow-x: hidden;
-        display: flex; flex-direction: column; align-items: center;
-        font-family: 'Georgia', serif;
-        background: #000;
-        color: white;
-    }
-
-    #bg-canvas {
-        position: fixed; top: 0; left: 0; z-index: 1;
-        width: 100%; height: 100%;
-    }
-
-    .content-area {
-        position: relative; z-index: 10;
-        margin-top: 50px;
-        text-align: center;
-        width: 90%;
-        max-width: 800px;
-    }
-
-    .category-card {
-        background: var(--glass);
-        backdrop-filter: blur(15px);
-        padding: 30px;
-        margin: 15px 0;
-        border-radius: 20px;
-        border: 1px solid rgba(255,255,255,0.1);
-        transition: 0.3s;
-    }
-
-    .category-card:hover { border-color: var(--gold); }
-    h2 { color: var(--gold); margin: 0; }
-    .nav-btn { color: white; text-decoration: none; font-family: sans-serif; opacity: 0.6; }
-</style>
-
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path of Faith - Daily</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="bg-canvas"></div>
+    <canvas id="particle-overlay"></canvas>
+    <div id="toast">Verse Copied & Atmosphere Changed</div>
 
-<div id="bg-canvas"></div>
+    <nav id="mainNav">
+        <div class="logo-container">
+            <div class="logo-circle">†</div>
+            <span class="logo-text">PATH OF FAITH</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="active-link">Daily</a>
+            <a href="explore.html">Explore</a>
+            <a href="settings.html">Settings</a>
+        </div>
+    </nav>
 
-<div class="content-area">
-    <a href="index.html" class="nav-btn">← Back</a>
-    <h1>Explore Truth</h1>
-    
-    <div class="category-card">
-        <h2>Peace</h2>
-        <p>Find calm in the midst of the storm.</p>
+    <div class="container" id="bibleCard">
+        <div id="contentWrapper" class="verse-content active">
+            <h1 id="verseDisplay">Loading...</h1>
+            <div class="reference" id="refDisplay">Seeking Truth</div>
+        </div>
     </div>
 
-    <div class="category-card">
-        <h2>Strength</h2>
-        <p>Verses to help you stay resilient and brave.</p>
-    </div>
-
-    <div class="category-card">
-        <h2>Hope</h2>
-        <p>Light for your future and your path.</p>
-    </div>
-</div>
-
-<script src="script.js"></script>
-
-
+    <script src="script.js"></script>
 </body>
 </html>
