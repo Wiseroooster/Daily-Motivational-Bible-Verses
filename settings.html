@@ -1,112 +1,86 @@
-let themes = {};
-let verses = [];
-let currentIndex = -1;
-
-// Elements
-const card = document.getElementById('bibleCard');
-const content = document.getElementById('contentWrapper');
-const verseDisplay = document.getElementById('verseDisplay');
-const refDisplay = document.getElementById('refDisplay');
-const bgContainer = document.getElementById('bg-canvas');
-const toast = document.getElementById('toast');
-
-// --- Settings Persistence ---
-const settings = {
-    particles: localStorage.getItem('particles') !== 'false',
-    autoCopy: localStorage.getItem('autoCopy') !== 'false',
-    largeText: localStorage.getItem('largeText') === 'true'
-};
-
-// --- Initialize Settings UI (Only if on settings page) ---
-if (document.getElementById('particleToggle')) {
-    const pToggle = document.getElementById('particleToggle');
-    const cToggle = document.getElementById('copyToggle');
-    const tToggle = document.getElementById('textToggle');
-
-    pToggle.checked = settings.particles;
-    cToggle.checked = settings.autoCopy;
-    tToggle.checked = settings.largeText;
-
-    pToggle.addEventListener('change', (e) => {
-        localStorage.setItem('particles', e.target.checked);
-        location.reload(); // Refresh to apply
-    });
-    cToggle.addEventListener('change', (e) => localStorage.setItem('autoCopy', e.target.checked));
-    tToggle.addEventListener('change', (e) => {
-        localStorage.setItem('largeText', e.target.checked);
-        location.reload();
-    });
-}
-
-// --- Fetch Data ---
-async function initializeApp() {
-    try {
-        const [themesRes, versesRes] = await Promise.all([
-            fetch('themes.json'),
-            fetch('verses.json')
-        ]);
-        themes = await themesRes.json();
-        verses = await versesRes.json();
-
-        if (verseDisplay) {
-            verseDisplay.innerHTML = "Tap to begin your journey";
-            if(settings.largeText) verseDisplay.style.fontSize = "2.8rem";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path of Faith - Settings</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-    } catch (err) {
-        console.error("Make sure to use a Local Server to see the theme colors!");
-    }
-}
-
-// --- Card Interaction ---
-if (card) {
-    card.addEventListener('click', () => {
-        if (verses.length === 0) return;
-        content.classList.remove('active');
-        setTimeout(() => {
-            currentIndex = (currentIndex + 1) % verses.length;
-            const verse = verses[currentIndex];
-            const theme = themes[verse.themeKey];
-            
-            verseDisplay.innerHTML = verse.text;
-            refDisplay.innerText = verse.ref;
-            if (bgContainer && theme) bgContainer.style.background = theme.gradient;
-            content.classList.add('active');
-
-            if (settings.autoCopy) {
-                navigator.clipboard.writeText(`${verseDisplay.innerText} - ${refDisplay.innerText}`);
-                if (toast) {
-                    toast.style.display = 'block';
-                    setTimeout(() => { toast.style.display = 'none'; }, 1500);
-                }
-            }
-        }, 400);
-    });
-}
-
-// --- Particle Engine ---
-const canvas = document.getElementById('particle-overlay');
-if (canvas && settings.particles) {
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-
-    class Particle {
-        constructor() { this.reset(); }
-        reset() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height + canvas.height;
-            this.size = Math.random() * 2;
-            this.speed = Math.random() * 0.5 + 0.2;
-            this.alpha = Math.random() * 0.5;
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
         }
-        update() { this.y -= this.speed; if (this.y < -10) this.reset(); }
-        draw() { ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
-    }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255,255,255,0.2);
+            transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: "";
+            height: 16px; width: 16px;
+            left: 4px; bottom: 4px;
+            background-color: white;
+            transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--gold); }
+        input:checked + .slider:before { transform: translateX(26px); }
+    </style>
+</head>
+<body>
+    <div id="bg-canvas"></div>
+    <canvas id="particle-overlay"></canvas>
 
-    for(let i=0; i<60; i++) particles.push(new Particle());
-    function animate() { ctx.clearRect(0,0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-    animate();
-}
+    <nav id="mainNav">
+        <div class="logo-container">
+            <div class="logo-circle">†</div>
+            <span class="logo-text">PATH OF FAITH</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Daily</a>
+            <a href="explore.html">Explore</a>
+            <a href="settings.html" class="active-link">Settings</a>
+        </div>
+    </nav>
 
-initializeApp();
+    <div class="container" style="cursor: default; max-width: 500px;">
+        <h1>Settings</h1>
+        
+        <div class="setting-row">
+            <span>Particle Atmosphere</span>
+            <label class="switch">
+                <input type="checkbox" id="particleToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-row">
+            <span>Auto-Copy Verse</span>
+            <label class="switch">
+                <input type="checkbox" id="copyToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="setting-row">
+            <span>Large Text Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="textToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
