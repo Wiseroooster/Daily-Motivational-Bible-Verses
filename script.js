@@ -1,112 +1,127 @@
-let themes = {};
-let verses = [];
+// 1. Initial State & Data Fallbacks (Prevents errors if JSON fails)
+let themes = { 
+    "peace": { "gradient": "linear-gradient(135deg, #0f2027, #203a43, #2c5364)" } 
+};
+let verses = [{ "text": "Tap the card to load light.", "ref": "THE PATH", "themeKey": "peace" }];
 let currentIndex = -1;
 
-// Elements
-const card = document.getElementById('bibleCard');
-const content = document.getElementById('contentWrapper');
-const verseDisplay = document.getElementById('verseDisplay');
-const refDisplay = document.getElementById('refDisplay');
-const bgContainer = document.getElementById('bg-canvas');
-const toast = document.getElementById('toast');
-
-// --- Settings Persistence ---
-const settings = {
-    particles: localStorage.getItem('particles') !== 'false',
-    autoCopy: localStorage.getItem('autoCopy') !== 'false',
-    largeText: localStorage.getItem('largeText') === 'true'
+// 2. Settings Persistence
+const getSetting = (key, defaultValue) => {
+    const val = localStorage.getItem(key);
+    return val === null ? defaultValue : val === 'true';
 };
 
-// --- Initialize Settings UI (Only if on settings page) ---
-if (document.getElementById('particleToggle')) {
-    const pToggle = document.getElementById('particleToggle');
-    const cToggle = document.getElementById('copyToggle');
-    const tToggle = document.getElementById('textToggle');
+const appSettings = {
+    particles: getSetting('pf_particles', true),
+    autoCopy: getSetting('pf_copy', true)
+};
 
-    pToggle.checked = settings.particles;
-    cToggle.checked = settings.autoCopy;
-    tToggle.checked = settings.largeText;
+// 3. Elements
+const bg = document.getElementById('bg-canvas');
+const verseEl = document.getElementById('verseDisplay');
+const refEl = document.getElementById('refDisplay');
+const card = document.getElementById('bibleCard');
+const content = document.getElementById('contentWrapper');
 
-    pToggle.addEventListener('change', (e) => {
-        localStorage.setItem('particles', e.target.checked);
-        location.reload(); // Refresh to apply
-    });
-    cToggle.addEventListener('change', (e) => localStorage.setItem('autoCopy', e.target.checked));
-    tToggle.addEventListener('change', (e) => {
-        localStorage.setItem('largeText', e.target.checked);
-        location.reload();
-    });
-}
-
-// --- Fetch Data ---
-async function initializeApp() {
+// 4. Data Loading Logic
+async function loadData() {
     try {
-        const [themesRes, versesRes] = await Promise.all([
-            fetch('themes.json'),
-            fetch('verses.json')
+        // We use relative paths for GitHub Pages
+        const [tRes, vRes] = await Promise.all([
+            fetch('./themes.json').then(r => r.json()),
+            fetch('./verses.json').then(r => r.json())
         ]);
-        themes = await themesRes.json();
-        verses = await versesRes.json();
-
-        if (verseDisplay) {
-            verseDisplay.innerHTML = "Tap to begin your journey";
-            if(settings.largeText) verseDisplay.style.fontSize = "2.8rem";
-        }
-    } catch (err) {
-        console.error("Make sure to use a Local Server to see the theme colors!");
+        themes = tRes;
+        verses = vRes;
+        console.log("Data loaded successfully from GitHub.");
+    } catch (e) {
+        console.warn("GitHub Fetch failed. Check if files are in the main folder.");
     }
 }
 
-// --- Card Interaction ---
+// 5. Verse Card Interaction
 if (card) {
     card.addEventListener('click', () => {
-        if (verses.length === 0) return;
         content.classList.remove('active');
+        
         setTimeout(() => {
             currentIndex = (currentIndex + 1) % verses.length;
-            const verse = verses[currentIndex];
-            const theme = themes[verse.themeKey];
+            const v = verses[currentIndex];
+            const t = themes[v.themeKey] || themes["peace"];
+
+            if (verseEl) verseEl.innerHTML = v.text;
+            if (refEl) refEl.innerText = v.ref;
+            if (bg) bg.style.background = t.gradient;
             
-            verseDisplay.innerHTML = verse.text;
-            refDisplay.innerText = verse.ref;
-            if (bgContainer && theme) bgContainer.style.background = theme.gradient;
             content.classList.add('active');
 
-            if (settings.autoCopy) {
-                navigator.clipboard.writeText(`${verseDisplay.innerText} - ${refDisplay.innerText}`);
-                if (toast) {
-                    toast.style.display = 'block';
-                    setTimeout(() => { toast.style.display = 'none'; }, 1500);
-                }
+            // Auto-Copy Feature
+            if (appSettings.autoCopy) {
+                const txt = verseEl.innerText + " - " + refEl.innerText;
+                navigator.clipboard.writeText(txt).then(() => {
+                    const toast = document.getElementById('toast');
+                    if(toast) {
+                        toast.style.display = 'block';
+                        setTimeout(() => toast.style.display = 'none', 1500);
+                    }
+                });
             }
-        }, 400);
+        }, 300);
+    } );
+}
+
+// 6. Settings Page Controls
+const pTog = document.getElementById('particleToggle');
+const cTog = document.getElementById('copyToggle');
+
+if (pTog) {
+    pTog.checked = appSettings.particles;
+    cTog.checked = appSettings.autoCopy;
+
+    pTog.addEventListener('change', (e) => {
+        localStorage.setItem('pf_particles', e.target.checked);
+        location.reload(); // Refresh to start/stop particles
+    });
+    cTog.addEventListener('change', (e) => {
+        localStorage.setItem('pf_copy', e.target.checked);
     });
 }
 
-// --- Particle Engine ---
+// 7. Particle Engine
 const canvas = document.getElementById('particle-overlay');
-if (canvas && settings.particles) {
+if (canvas && appSettings.particles) {
     const ctx = canvas.getContext('2d');
-    let particles = [];
-    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    let pts = [];
+    
+    const resize = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', resize);
+    resize();
 
-    class Particle {
-        constructor() { this.reset(); }
-        reset() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height + canvas.height;
-            this.size = Math.random() * 2;
-            this.speed = Math.random() * 0.5 + 0.2;
-            this.alpha = Math.random() * 0.5;
-        }
-        update() { this.y -= this.speed; if (this.y < -10) this.reset(); }
-        draw() { ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+    for(let i=0; i<60; i++) {
+        pts.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            s: Math.random() * 2,
+            v: Math.random() * 0.4 + 0.1
+        });
     }
 
-    for(let i=0; i<60; i++) particles.push(new Particle());
-    function animate() { ctx.clearRect(0,0, canvas.width, canvas.height); particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animate); }
-    animate();
+    function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        pts.forEach(p => {
+            p.y -= p.v;
+            if (p.y < 0) p.y = canvas.height;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
 }
 
-initializeApp();
+loadData();
