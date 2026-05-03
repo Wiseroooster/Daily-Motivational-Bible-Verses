@@ -2,37 +2,56 @@
     --gold: #ffcc33;
     --white: #ffffff;
     --glass: rgba(255, 255, 255, 0.1);
-    /* This gradient is the "Gray Screen" killer */
     --fallback-bg: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
 }
 
+* {
+    box-sizing: border-box;
+}
+
 body, html {
-    margin: 0; padding: 0;
-    width: 100%; height: 100%;
+    margin: 0; 
+    padding: 0;
+    width: 100%; 
+    height: 100vh; /* Critical: Sets height to exactly the screen size */
     overflow: hidden;
     background: #000;
     font-family: 'Georgia', serif;
+    /* Centers the card perfectly regardless of other elements */
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
 }
 
-/* Atmospheric Background */
+/* Background Atmosphere - Fixed so it doesn't push elements */
 #bg-canvas {
-    position: absolute; top: 0; left: 0; z-index: 1;
+    position: fixed; 
+    top: 0; left: 0; 
     width: 100%; height: 100%;
+    z-index: 1;
     background: var(--fallback-bg);
     transition: background 1.5s ease-in-out;
 }
 
 #particle-overlay {
-    position: absolute; top: 0; left: 0; z-index: 2;
+    position: fixed; 
+    top: 0; left: 0; 
+    z-index: 2;
     pointer-events: none;
 }
 
-/* Navigation Bar */
+/* Fixed Nav Bar - Floats on top */
 nav {
-    position: fixed; top: 0; left: 0; width: 100%; z-index: 100;
-    display: flex; align-items: center; padding: 15px 40px; 
-    box-sizing: border-box; background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    position: fixed; 
+    top: 0; left: 0; 
+    width: 100%; 
+    z-index: 100;
+    display: flex; 
+    align-items: center; 
+    padding: 15px 40px; 
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(15px); 
+    -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -56,44 +75,33 @@ nav a {
 }
 nav a:hover, nav a.active-link { color: var(--gold); }
 
-/* Main Card */
+/* Main Card - Perfectly Centered */
 .container {
-    position: relative; z-index: 10; text-align: center; padding: 60px 40px;
-    max-width: 700px; width: 85%; margin: 0 auto;
-    background: var(--glass); backdrop-filter: blur(25px);
-    border-radius: 30px; border: 1px solid rgba(255,255,255,0.2);
+    position: relative; 
+    z-index: 10; 
+    text-align: center; 
+    padding: 60px 40px;
+    max-width: 700px; 
+    width: 90%; 
+    background: var(--glass); 
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 30px; 
+    border: 1px solid rgba(255,255,255,0.2);
     box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-    cursor: pointer; transition: 0.4s;
+    cursor: pointer; 
+    transition: 0.4s;
 }
 
 .verse-content { opacity: 0; transform: scale(0.95); transition: 0.6s ease; }
 .verse-content.active { opacity: 1; transform: scale(1); }
 
-h1 { color: var(--white); font-size: 2rem; line-height: 1.4; margin: 0; }
+h1 { color: var(--white); font-size: 1.8rem; line-height: 1.4; margin: 0; }
 .reference { margin-top: 30px; color: var(--gold); letter-spacing: 5px; font-size: 0.8rem; text-transform: uppercase; }
 
-/* Settings UI */
-.setting-row { 
-    display: flex; justify-content: space-between; align-items: center; 
-    padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.1); 
-    color: white; font-family: sans-serif; 
-}
-
-.switch { position: relative; width: 44px; height: 22px; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { 
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
-    background: rgba(255,255,255,0.2); transition: .3s; border-radius: 20px; 
-}
-.slider:before { 
-    position: absolute; content: ""; height: 16px; width: 16px; 
-    left: 3px; bottom: 3px; background: white; transition: .3s; border-radius: 50%; 
-}
-input:checked + .slider { background: var(--gold); }
-input:checked + .slider:before { transform: translateX(22px); }
-
 #toast {
-    position: fixed; top: 100px; background: var(--gold); color: #000;
+    position: fixed; top: 100px; left: 50%; transform: translateX(-50%);
+    background: var(--gold); color: #000;
     padding: 10px 30px; border-radius: 50px; font-family: sans-serif;
     font-weight: bold; display: none; z-index: 110;
 }
