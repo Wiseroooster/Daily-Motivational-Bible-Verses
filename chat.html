@@ -7,10 +7,17 @@
   title="Chat Widget">
 </iframe>
 <script>
-  document.getElementById('chat-widget').addEventListener('load', function() {
-    this.contentWindow.postMessage(
-      { type: 'CHAT_ORIGIN', origin: window.location.origin },
-      'https://8080-app-3adeb4ee-e380-4147-beca-8bf7ce14ed46-pchcjhua2cz08fi1.zite-sandbox.com'
-    );
-  });
+  (function() {
+    var iframe = document.getElementById("chat-widget");
+    var origin = window.location.origin;
+    var target = "https://8080-app-3adeb4ee-e380-4147-beca-8bf7ce14ed46-pchcjhua2cz08fi1.zite-sandbox.com";
+    function sendOrigin() {
+      try { iframe.contentWindow.postMessage({ type: "CHAT_ORIGIN", origin: origin }, target); } catch(e) {}
+    }
+    iframe.addEventListener("load", function() {
+      sendOrigin();
+      setTimeout(sendOrigin, 500);
+      setTimeout(sendOrigin, 1500);
+    });
+  })();
 </script>
