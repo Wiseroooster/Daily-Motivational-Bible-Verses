@@ -17,12 +17,12 @@ body, html {
     width: 100%;
     min-height: 100vh;
     overflow-x: hidden;
-    overflow-y: auto; /* Enables natural scrolling for the footer content */
+    overflow-y: auto;
     background: #050b0d;
     font-family: 'Georgia', serif;
 }
 
-/* --- Atmospheric Background Layers (Anti-Gray Killers) --- */
+/* --- Atmospheric Background Layers --- */
 #bg-canvas {
     position: fixed;
     top: 0; left: 0;
@@ -56,16 +56,24 @@ nav {
 }
 
 .logo-container {
-    display: flex; align-items: center; gap: 14px;
-    color: var(--white); font-family: sans-serif;
-    font-weight: bold; letter-spacing: 2px; font-size: 0.95rem;
+    display: flex; 
+    align-items: center; 
+    gap: 14px;
+    color: var(--white); 
+    font-family: sans-serif;
+    font-weight: bold; 
+    letter-spacing: 2px; 
+    font-size: 0.95rem;
 }
 
-.logo-circle {
-    width: 32px; height: 32px; background: var(--gold);
-    border-radius: 50%; display: flex; align-items: center;
-    justify-content: center; color: #050b0d; font-weight: bold;
-    box-shadow: 0 0 15px var(--gold-glow);
+/* New Navigation Image Logo Styling */
+.nav-logo-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--gold);
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
 .nav-links { display: flex; gap: 35px; }
@@ -84,8 +92,33 @@ nav a:hover, nav a.active-link {
     z-index: 10;
     max-width: 1200px;
     width: 90%;
-    margin: 140px auto 40px auto; 
+    margin: 120px auto 40px auto; 
     text-align: center;
+}
+
+/* Hero Logo Presentation Styling */
+.hero-logo-wrapper {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center-hero-logo {
+    max-width: 280px;
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6),
+                0 0 30px rgba(0, 212, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.center-hero-logo:hover {
+    transform: scale(1.03);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7),
+                0 0 40px rgba(0, 212, 255, 0.25);
 }
 
 .welcome-header {
@@ -217,7 +250,7 @@ nav a:hover, nav a.active-link {
     letter-spacing: 0.5px;
 }
 
-/* --- Classic Verse Card Module (Absolute Center Point 0,0 Alignment for secondary pages) --- */
+/* --- Classic Verse Card Module --- */
 .container {
     position: absolute;
     top: 54%; left: 50%;
@@ -245,7 +278,6 @@ nav a:hover, nav a.active-link {
 .container h1 { color: var(--white); font-size: 2.8rem; line-height: 1.35; margin: 0; }
 .reference { margin-top: 50px; color: var(--gold); letter-spacing: 8px; font-size: 1rem; text-transform: uppercase; }
 
-/* Global clipboard alert window alignment */
 #toast {
     position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
     background: var(--gold); color: #000; padding: 12px 35px;
@@ -255,9 +287,10 @@ nav a:hover, nav a.active-link {
 /* --- Responsive Adaptability Bounds --- */
 @media (max-width: 768px) {
     nav { padding: 20px 30px; }
-    .logo-text { display: none; } /* Drops descriptive typography on ultra-slim displays */
+    .logo-text { display: none; }
     .welcome-title { font-size: 2.2rem; }
     .container h1 { font-size: 1.8rem; }
     .container { padding: 50px 30px; top: 55%; }
     .footer-socials { gap: 20px; flex-wrap: wrap; }
+    .center-hero-logo { max-width: 220px; }
 }
