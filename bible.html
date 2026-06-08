@@ -1,36 +1,151 @@
-<!-- 1. The HTML elements where the Bible verse will appear -->
-<div class="verse-container">
-    <h3 id="bible-text">Loading daily scripture...</h3>
-    <p id="bible-copyright" style="font-size: 0.8rem; color: gray;"></p>
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path of Faith - Complete NIV Bible</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 20px; background: #121212; color: #fff; text-align: center; }
+        .controls { margin: 20px auto; max-width: 600px; display: flex; gap: 10px; justify-content: center; }
+        select { padding: 10px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #444; font-size: 1rem; cursor: pointer; }
+        .reader-container { max-width: 700px; margin: 30px auto; padding: 30px; border-radius: 12px; background: #1e1e1e; box-shadow: 0 4px 15px rgba(0,0,0,0.5); text-align: left; }
+        .bible-title { font-size: 1.8rem; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; color: #fff; text-align: center;}
+        .text-content { font-size: 1.3rem; line-height: 1.8; color: #e0e0e0; }
+        .attribution { font-size: 0.85rem; color: #888; font-style: italic; border-top: 1px solid #333; padding-top: 15px; margin-top: 30px; text-align: center; }
+    </style>
+</head>
+<body>
 
-<!-- 2. Load the official YouVersion Core SDK -->
-<script src="https://unpkg.com"></script>
+    <h1>Path of Faith Bible</h1>
 
-<!-- 3. The Script that connects to YouVersion and pulls the NIV text -->
-<script>
-    async function getDailyVerse() {
-        // Initialize the YouVersion client with your credentials
-        const apiClient = new YouVersionPlatform.ApiClient({
-            appKey: "L6XK5ehCZDGT0gmb5xjAUm2Ul1rqPpOLxkIGmIceVTo0RO6k" 
-        });
-        const bibleClient = new YouVersionPlatform.BibleClient(apiClient);
+    <!-- Dropdown Navigation Controls -->
+    <div class="controls">
+        <select id="book-select">Loading Books...</select>
+        <select id="chapter-select"></select>
+    </div>
 
-        try {
-            // 3034 is the internal database code for the official NIV translation
-            // "JHN.3.16" is the target passage (John 3:16)
-            const passage = await bibleClient.getPassage(3034, "JHN.3.16", "text");
-            const version = await bibleClient.getVersion(3034);
+    <!-- Main Text Presentation Layout -->
+    <div class="reader-container">
+        <div id="display-title" class="bible-title">Genesis 1</div>
+        <div id="bible-text" class="text-content">Loading chapter text...</div>
+        <div id="bible-copyright" class="attribution"></div>
+    </div>
 
-            // Inject the scripture and required copyright into your page elements
-            document.getElementById('bible-text').innerText = passage.content;
-            document.getElementById('bible-copyright').innerText = version.copyright;
-        } catch (error) {
-            document.getElementById('bible-text').innerText = "Unable to load scripture at this time.";
-            console.error("YouVersion API Error:", error);
+    <script type="importmap">
+      {
+        "imports": {
+          "@youversion/platform-core": "https://unpkg.com"
         }
-    }
+      }
+    </script>
+    
+    <script type="module">
+        import { ApiClient, BibleClient } from "@youversion/platform-core";
 
-    // Automatically run the function when your website loads
-    window.onload = getDailyVerse;
-</script>
+        const myAppKeys = ["L6XK5ehCZDGT0gmb5xjAUm2Ul1rqPpOLxkIGmIceVTo0RO6k"];
+        const NIV_VERSION_ID = 3034;
+
+        // Complete standard 66-book USFM library blueprint with chapter counts
+        const bibleBooks = [
+            { code: "GEN", name: "Genesis", chapters: 50 }, { code: "EXO", name: "Exodus", chapters: 40 },
+            { code: "LEV", name: "Leviticus", chapters: 27 }, { code: "NUM", name: "Numbers", chapters: 36 },
+            { code: "DEU", name: "Deuteronomy", chapters: 34 }, { code: "JOSH", name: "Joshua", chapters: 24 },
+            { code: "JUDG", name: "Judges", chapters: 21 }, { code: "RUTH", name: "Ruth", chapters: 4 },
+            { code: "1SAM", name: "1 Samuel", chapters: 31 }, { code: "2SAM", name: "2 Samuel", chapters: 24 },
+            { code: "1KNG", name: "1 Kings", chapters: 22 }, { code: "2KNG", name: "2 Kings", chapters: 25 },
+            { code: "1CHR", name: "1 Chronicles", chapters: 29 }, { code: "2CHR", name: "2 Chronicles", chapters: 36 },
+            { code: "EZRA", name: "Ezra", chapters: 10 }, { code: "NEH", name: "Nehemiah", chapters: 13 },
+            { code: "EST", name: "Esther", chapters: 10 }, { code: "JOB", name: "Job", chapters: 42 },
+            { code: "PSA", name: "Psalms", chapters: 150 }, { code: "PRO", name: "Proverbs", chapters: 31 },
+            { code: "ECC", name: "Ecclesiastes", chapters: 12 }, { code: "SNG", name: "Song of Solomon", chapters: 8 },
+            { code: "ISA", name: "Isaiah", chapters: 66 }, { code: "JER", name: "Jeremiah", chapters: 52 },
+            { code: "LAM", name: "Lamentations", chapters: 5 }, { code: "EZK", name: "Ezekiel", chapters: 48 },
+            { code: "DAN", name: "Daniel", chapters: 12 }, { code: "HOS", name: "Hosea", chapters: 14 },
+            { code: "JOEL", name: "Joel", chapters: 3 }, { code: "AMOS", name: "Amos", chapters: 9 },
+            { code: "OBA", name: "Obadiah", chapters: 1 }, { code: "JON", name: "Jonah", chapters: 4 },
+            { code: "MIC", name: "Micah", chapters: 7 }, { code: "NAM", name: "Nahum", chapters: 3 },
+            { code: "HAB", name: "Habakkuk", chapters: 3 }, { code: "ZEP", name: "Zephaniah", chapters: 3 },
+            { code: "HAG", name: "Haggai", chapters: 2 }, { code: "ZECH", name: "Zechariah", chapters: 14 },
+            { code: "MAL", name: "Malachi", chapters: 4 }, { code: "MAT", name: "Matthew", chapters: 28 },
+            { code: "MRK", name: "Mark", chapters: 16 }, { code: "LUK", name: "Luke", chapters: 24 },
+            { code: "JHN", name: "John", chapters: 21 }, { code: "ACT", name: "Acts", chapters: 28 },
+            { code: "ROM", name: "Romans", chapters: 16 }, { code: "1COR", name: "1 Corinthians", chapters: 16 },
+            { code: "2COR", name: "2 Corinthians", chapters: 13 }, { code: "GAL", name: "Galatians", chapters: 6 },
+            { code: "EPH", name: "Ephesians", chapters: 6 }, { code: "PHP", name: "Philippians", chapters: 4 },
+            { code: "COL", name: "Colossians", chapters: 4 }, { code: "1THS", name: "1 Thessalonians", chapters: 5 },
+            { code: "2THS", name: "2 Thessalonians", chapters: 3 }, { code: "1TIM", name: "1 Timothy", chapters: 6 },
+            { code: "2TIM", name: "2 Timothy", chapters: 4 }, { code: "TIT", name: "Titus", chapters: 3 },
+            { code: "PHM", name: "Philemon", chapters: 1 }, { code: "HEB", name: "Hebrews", chapters: 13 },
+            { code: "JAS", name: "James", chapters: 5 }, { code: "1PET", name: "1 Peter", chapters: 5 },
+            { code: "2PET", name: "2 Peter", chapters: 3 }, { code: "1JHN", name: "1 John", chapters: 5 },
+            { code: "2JHN", name: "2 John", chapters: 1 }, { code: "3JHN", name: "3 John", chapters: 1 },
+            { code: "JUD", name: "Jude", chapters: 1 }, { code: "REV", name: "Revelation", chapters: 22 }
+        ];
+
+        const bookSelect = document.getElementById("book-select");
+        const chapterSelect = document.getElementById("chapter-select");
+
+        // Populate Books Menu Dropdown
+        function initInterface() {
+            bookSelect.innerHTML = bibleBooks.map(b => `<option value="${b.code}">${b.name}</option>`).join("");
+            updateChapterDropdown();
+            
+            bookSelect.addEventListener("change", () => {
+                updateChapterDropdown();
+                loadBibleChapter();
+            });
+            chapterSelect.addEventListener("change", loadBibleChapter);
+            
+            loadBibleChapter();
+        }
+
+        // Dynamically shift max chapters based on selected book index
+        function updateChapterDropdown() {
+            const selectedBook = bibleBooks.find(b => b.code === bookSelect.value);
+            let options = "";
+            for (let i = 1; i <= selectedBook.chapters; i++) {
+                options += `<option value="${i}">Chapter ${i}</option>`;
+            }
+            chapterSelect.innerHTML = options;
+        }
+
+        async function loadBibleChapter() {
+            const bookCode = bookSelect.value;
+            const chapterNum = chapterSelect.value || 1;
+            const bookName = bookSelect.options[bookSelect.selectedIndex].text;
+            
+            document.getElementById('display-title').innerText = `${bookName} ${chapterNum}`;
+            document.getElementById('bible-text').innerText = "Streaming text data safely...";
+
+            let dataLoaded = false;
+            const targetUSFMReference = `${bookCode}.${chapterNum}`;
+
+            for (let i = 0; i < myAppKeys.length; i++) {
+                try {
+                    const apiClient = new ApiClient({ appKey: myAppKeys[i] });
+                    const bibleClient = new BibleClient(apiClient);
+
+                    // Pull full chapter chunks into layout
+                    const passage = await bibleClient.getPassage(NIV_VERSION_ID, targetUSFMReference, "text");
+                    const version = await bibleClient.getVersion(NIV_VERSION_ID);
+
+                    document.getElementById('bible-text').innerText = passage.content;
+                    document.getElementById('bible-copyright').innerText = version.copyright;
+                    
+                    dataLoaded = true;
+                    break;
+                } catch (error) {
+                    console.error(`Key #${i+1} structural extraction roadblock:`, error);
+                }
+            }
+
+            if (!dataLoaded) {
+                document.getElementById('bible-text').innerText = "Unable to fetch this chapter. Check key verification paths.";
+            }
+        }
+
+        // Boot interface layout
+        initInterface();
+    </script>
+</body>
+</html>
