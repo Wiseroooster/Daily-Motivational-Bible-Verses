@@ -1,0 +1,36 @@
+<!-- 1. The HTML elements where the Bible verse will appear -->
+<div class="verse-container">
+    <h3 id="bible-text">Loading daily scripture...</h3>
+    <p id="bible-copyright" style="font-size: 0.8rem; color: gray;"></p>
+</div>
+
+<!-- 2. Load the official YouVersion Core SDK -->
+<script src="https://unpkg.com"></script>
+
+<!-- 3. The Script that connects to YouVersion and pulls the NIV text -->
+<script>
+    async function getDailyVerse() {
+        // Initialize the YouVersion client with your credentials
+        const apiClient = new YouVersionPlatform.ApiClient({
+            appKey: "L6XK5ehCZDGT0gmb5xjAUm2Ul1rqPpOLxkIGmIceVTo0RO6k" 
+        });
+        const bibleClient = new YouVersionPlatform.BibleClient(apiClient);
+
+        try {
+            // 3034 is the internal database code for the official NIV translation
+            // "JHN.3.16" is the target passage (John 3:16)
+            const passage = await bibleClient.getPassage(3034, "JHN.3.16", "text");
+            const version = await bibleClient.getVersion(3034);
+
+            // Inject the scripture and required copyright into your page elements
+            document.getElementById('bible-text').innerText = passage.content;
+            document.getElementById('bible-copyright').innerText = version.copyright;
+        } catch (error) {
+            document.getElementById('bible-text').innerText = "Unable to load scripture at this time.";
+            console.error("YouVersion API Error:", error);
+        }
+    }
+
+    // Automatically run the function when your website loads
+    window.onload = getDailyVerse;
+</script>
